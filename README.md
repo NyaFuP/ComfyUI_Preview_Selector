@@ -1,6 +1,6 @@
-# NF Review Selector
+# NF Preview Selector
 
-A floating dialog-based image review and selection system for ComfyUI. Inspired by cg-image-filter but designed as a simpler, more focused solution for image review workflows.
+A floating dialog-based image review and selection system for ComfyUI. Inspired by cg-image-filter but designed as a simpler, more focused solution for image preview workflows.
 
 ## Features
 
@@ -14,7 +14,7 @@ A floating dialog-based image review and selection system for ComfyUI. Inspired 
 
 ## Usage
 
-1. Add the "NF Review Selector" node to your workflow
+1. Add the "NF Preview Selector" node to your workflow
 2. Connect image input (and optionally latent input)
 3. Choose a mode:
    - **review_and_select**: Opens floating dialog for manual selection
@@ -35,9 +35,9 @@ When in review mode, a floating dialog will appear showing:
 ## Settings
 
 Access via ComfyUI Settings menu:
+- **Dialog maximum width**: Determines the maximum width of the dialog in pixels. (Max 1800px)
 - **Remember window position**: Saves dialog position between uses
-- **Use compact mode**: Smaller layout for limited screen space
-- **Auto-select first image**: Automatically selects first image when dialog opens
+
 
 ## Outputs
 
@@ -47,9 +47,10 @@ Access via ComfyUI Settings menu:
 
 ## Installation
 
-1. Place this folder in `ComfyUI/custom_nodes/`
+1. Run git pull in the directory "ComfyUI/custom_nodes/".
+ ```git pull https://github.com/NyaFuP/ComfyUI_Preview_Selector.git```
 2. Restart ComfyUI
-3. The "NF Review Selector" node will appear in the "image/review" category
+3. The "NF Preview Selector" node will appear in the "image/review" category
 
 ## Technical Details
 
@@ -59,13 +60,6 @@ Access via ComfyUI Settings menu:
 - Supports both image and latent workflows
 - Minimal dependencies (uses ComfyUI's built-in APIs)
 
-## Comparison to Alternatives
-
-Unlike full-screen solutions, NF Review Selector:
-- Doesn't take over the entire interface
-- Allows interaction with other parts of ComfyUI while reviewing
-- Provides a cleaner, more focused review experience
-- Maintains workflow visibility
 
 ## License
 
