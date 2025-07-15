@@ -4,7 +4,7 @@ A floating dialog-based image review and selection system for ComfyUI.
 
 ## Features
 
-- **Floating Dialog Interface**: Non-intrusive dialog window instead of full-screen overlay
+- **Floating Dialog Interface**: Non-intrusive dialog window
 - **Drag & Drop Positioning**: Move the review window anywhere on screen
 - **Multi-Selection**: Click images to select/deselect multiple images
 - **Timeout Support**: Configurable timeout with visual countdown
