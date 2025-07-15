@@ -1,6 +1,6 @@
 # NF Preview Selector
 
-A floating dialog-based image review and selection system for ComfyUI. Inspired by cg-image-filter but designed as a simpler, more focused solution for image preview workflows.
+A floating dialog-based image review and selection system for ComfyUI.
 
 ## Features
 
