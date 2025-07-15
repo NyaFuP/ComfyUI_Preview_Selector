@@ -1,0 +1,165 @@
+/**
+ * NF Preview Selector - Floating Window Styles
+ */
+
+.nf-float {
+    position: absolute;
+    z-index: 999999;
+    border: 2px solid #333;
+    background-color: rgba(45, 45, 45, 0.95);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    min-width: 300px;
+    max-width: 800px;
+    min-height: 300px; /* Minimum height for proper layout */
+    font-family: Arial, sans-serif;
+    resize: both;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.nf-float.hidden {
+    display: none;
+}
+
+.nf-float-header {
+    width: 100%;
+    text-align: center;
+    background-color: rgba(70, 130, 180, 0.9);
+    color: white;
+    border-bottom: 1px solid #333;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: move;
+    border-radius: 6px 6px 0 0;
+    user-select: none;
+    flex-shrink: 0; /* Don't shrink header */
+}
+
+.nf-float-header:hover {
+    background-color: rgba(70, 130, 180, 1);
+}
+
+.nf-float-body {
+    padding: 12px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1; /* Take remaining space */
+    min-height: 0; /* Allow shrinking */
+}
+
+/* Image Grid */
+.nf-image-grid {
+    display: grid;
+    gap: 8px;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    flex: 1; /* Take up remaining space */
+    overflow-y: auto;
+    min-height: 0; /* Allow shrinking */
+}
+
+.nf-image-container {
+    position: relative;
+    border: 2px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.nf-image-container:hover {
+    border-color: #70a0d0;
+}
+
+.nf-image-container.selected {
+    border-color: #4CAF50;
+    background-color: rgba(76, 175, 80, 0.1);
+}
+
+.nf-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 2px;
+}
+
+.nf-image-overlay {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+}
+
+.nf-image-container.selected .nf-image-overlay {
+    background-color: rgba(76, 175, 80, 0.9);
+}
+
+/* Controls */
+.nf-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-top: 1px solid #555;
+    margin-top: auto; /* Push to bottom */
+    flex-shrink: 0; /* Don't shrink */
+}
+
+.nf-selection-info {
+    font-size: 12px;
+    color: #ccc;
+}
+
+.nf-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.nf-button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.2s;
+}
+
+.nf-button.primary {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.nf-button.primary:hover {
+    background-color: #45a049;
+}
+
+.nf-button.primary:disabled {
+    background-color: #666;
+    cursor: not-allowed;
+}
+
+.nf-button.secondary {
+    background-color: #666;
+    color: white;
+}
+
+.nf-button.secondary:hover {
+    background-color: #777;
+}
+
+/* Countdown */
+.nf-countdown {
+    font-size: 11px;
+    color: #ff9800;
+    text-align: center;
+    padding: 4px;
+}
+
+/* Max width is now configurable via settings */
