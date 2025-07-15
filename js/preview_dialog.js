@@ -67,7 +67,7 @@ export class NFPreviewDialog {
             if (event.ctrlKey && event.key === 'Enter') {
                 // Only handle if preview dialog is visible
                 if (this.isVisible()) {
-                    console.log('NF Preview Dialog: Queue Prompt keybinding detected - stopping dialog and allowing queue to proceed');
+                    // Queue Prompt keybinding detected
                     
                     // Stop the dialog processing immediately
                     this.stopDialogForQueue();
@@ -85,7 +85,7 @@ export class NFPreviewDialog {
             // If queue is starting and dialog is visible, stop the dialog
             if (status && status.exec_info && status.exec_info.queue_remaining > 0) {
                 if (this.isVisible()) {
-                    console.log('NF Preview Dialog: Queue started programmatically - stopping dialog');
+                    // Queue started programmatically
                     this.stopDialogForQueue();
                 }
             }
@@ -96,7 +96,7 @@ export class NFPreviewDialog {
         // Stop countdown immediately
         this.stopCountdown();
         
-        console.log('NF Preview Dialog: Stopping dialog processing for queue');
+        // Stopping dialog processing for queue
         
         // Send cancellation response to backend (empty selection, cancelled=true)
         this.sendSelection([], true);
@@ -110,14 +110,14 @@ export class NFPreviewDialog {
     }
     
     show(data) {
-        console.log("NF Preview Dialog: Showing review dialog", data);
+        // Showing review dialog
         
         // Apply latest max width setting
         this.applyMaxWidthSetting();
         
         // If dialog is already open for this review, don't create another
         if (this.reviewId === data.review_id && this.window) {
-            console.log("NF Preview Dialog: Dialog already open for this review");
+            // Dialog already open
             return;
         }
         
@@ -284,12 +284,12 @@ export class NFPreviewDialog {
             // For landscape images, use slightly wider columns but still allow multiple columns
             const minColumnWidth = Math.max(200, Math.min(300, dialogWidth / 2)); // 200-300px, max 2 columns typically
             this.imageGrid.style.setProperty('--min-column-width', `${minColumnWidth}px`);
-            console.log('NF Preview Dialog: Using smart grid layout optimized for landscape images, min width:', minColumnWidth);
+            // Using landscape image layout
         } else {
             // For portrait/square images, use standard grid sizing
             const minColumnWidth = Math.max(120, Math.min(200, dialogWidth / 3)); // 120-200px, allow up to 3-4 columns
             this.imageGrid.style.setProperty('--min-column-width', `${minColumnWidth}px`);
-            console.log('NF Preview Dialog: Using smart grid layout optimized for portrait/square images, min width:', minColumnWidth);
+            // Using portrait/square image layout
         }
     }
     
@@ -311,7 +311,7 @@ export class NFPreviewDialog {
         this.updateSelectionInfo();
         this.updateConfirmButton();
         
-        console.log("NF Preview Dialog: Selected indices:", Array.from(this.selectedIndices));
+        // Selected indices updated
     }
     
     updateSelectionInfo() {
@@ -335,7 +335,7 @@ export class NFPreviewDialog {
             this.updateCountdown();
             
             if (this.remainingTime <= 0) {
-                console.log("NF Preview Dialog: Timeout reached");
+                // Timeout reached
                 this.timeoutSelection();
             }
         }, 1000);
@@ -358,7 +358,7 @@ export class NFPreviewDialog {
         this.stopCountdown();
         
         const selection = Array.from(this.selectedIndices).sort((a, b) => a - b);
-        console.log("NF Preview Dialog: Confirming selection:", selection);
+        // Confirming selection
         
         this.sendSelection(selection, false);
         this.hide();
@@ -367,7 +367,7 @@ export class NFPreviewDialog {
     cancelSelection() {
         this.stopCountdown();
         
-        console.log("NF Preview Dialog: Cancelling selection");
+        // Cancelling selection
         this.sendSelection([], true);
         this.hide();
     }
@@ -377,7 +377,7 @@ export class NFPreviewDialog {
         
         // On timeout, select all images or none based on setting
         const selection = []; // Default to empty selection on timeout
-        console.log("NF Preview Dialog: Timeout - returning empty selection");
+        // Timeout - returning empty selection
         
         this.sendSelection(selection, false);
         this.hide();
@@ -483,7 +483,7 @@ export class NFPreviewDialog {
         if (rememberPosition) {
             this.savePosition(x, y);
         }
-        console.log("NF Preview Dialog: Window moved to", x, y);
+        // Window moved
     }
     
     onWindowResize(width, height) {
@@ -514,7 +514,7 @@ export class NFPreviewDialog {
             this.applyImageLayout(landscapeCount, portraitCount);
         }
         
-        console.log("NF Preview Dialog: Window resized to", width, height);
+        // Window resized
     }
 }
 

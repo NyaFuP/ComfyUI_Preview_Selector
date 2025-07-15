@@ -24,7 +24,7 @@ async def handle_review_response(request):
         selection = data.get('selection', [])
         cancelled = data.get('cancelled', False)
         
-        print(f"NF Preview Selector: Received response for review {review_id}: {selection}")
+        pass  # Response received
         
         # Store response
         review_responses[review_id] = {
@@ -34,7 +34,7 @@ async def handle_review_response(request):
         
         return web.json_response({'status': 'success'})
     except Exception as e:
-        print(f"NF Preview Selector: Error handling response: {e}")
+        pass  # Error handled
         return web.json_response({'status': 'error', 'message': str(e)}, status=500)
 
 # Register API endpoint
@@ -76,7 +76,7 @@ class NFPreviewSelector(PreviewImage):
     def preview_images(self, images, mode, timeout, unique_id=None, latents=None, selection_indices="", prompt=None, extra_pnginfo=None):
         """Main function for image preview and selection"""
         
-        print(f"NF Preview Selector: Processing {len(images)} images with mode '{mode}'")
+        pass  # Processing images
         
         # No flags needed anymore
         
@@ -113,9 +113,9 @@ class NFPreviewSelector(PreviewImage):
                 # Use ComfyUI's message dispatch system
                 try:
                     PromptServer.instance.send_sync("nf_preview_request", message_data)
-                    print(f"NF Preview Selector: Sent review request via send_sync")
+                    pass  # Request sent
                 except Exception as e:
-                    print(f"NF Preview Selector: send_sync failed, trying direct WebSocket: {e}")
+                    pass  # Fallback to direct WebSocket
                     # Fallback to direct WebSocket
                     message = {
                         "type": "nf_preview_request", 
@@ -127,20 +127,20 @@ class NFPreviewSelector(PreviewImage):
                             try:
                                 await ws.send_str(json.dumps(message))
                             except Exception as e:
-                                print(f"Failed to send message to client: {e}")
+                                pass  # Send failed
                     
                     if PromptServer.instance.loop:
                         asyncio.run_coroutine_threadsafe(send_message(), PromptServer.instance.loop)
                 
-                print(f"NF Preview Selector: Sent review request for {len(images)} images")
+                pass  # Request sent
                 
                 # Wait for response from frontend
                 result = self.wait_for_response(review_id, timeout)
                 if result == "CANCELLED":
-                    print(f"NF Preview Selector: Workflow cancelled by user")
+                    pass  # Cancelled
                     raise InterruptProcessingException()
                 elif result == "TIMEOUT":
-                    print(f"NF Preview Selector: Workflow timed out") 
+                    pass  # Timed out 
                     raise InterruptProcessingException()
                 else:
                     selected_indices = result
@@ -152,7 +152,7 @@ class NFPreviewSelector(PreviewImage):
         # Process selection
         if not selected_indices:
             # For timeout or other cases, return empty tensors
-            print(f"NF Preview Selector: No selection made, returning empty tensors")
+            pass  # No selection
             empty_image = torch.zeros((1, images.shape[1], images.shape[2], images.shape[3]))
             empty_latent = {"samples": torch.zeros((1, 4, 64, 64))} if latents is None else {"samples": torch.zeros((1, latents["samples"].shape[1], latents["samples"].shape[2], latents["samples"].shape[3]))}
             return (empty_image, empty_latent, "")
@@ -170,7 +170,7 @@ class NFPreviewSelector(PreviewImage):
 
         indices_str = ",".join(str(i) for i in selected_indices)
         
-        print(f"NF Preview Selector: Selected {len(selected_indices)} images: [{indices_str}]")
+        pass  # Selection made
         
         return {
             "result": (selected_images, selected_latents, indices_str),
@@ -188,16 +188,16 @@ class NFPreviewSelector(PreviewImage):
                 response = review_responses.pop(review_id)
                 
                 if response['cancelled']:
-                    print(f"NF Preview Selector: Review {review_id} was cancelled")
+                    pass  # Review cancelled
                     return "CANCELLED"
                 else:
                     selection = response['selection']
-                    print(f"NF Preview Selector: Review {review_id} completed with selection: {selection}")
+                    pass  # Review completed
                     return selection
             
             time.sleep(0.1)  # Poll every 100ms
         
-        print(f"NF Preview Selector: Review {review_id} timed out")
+        pass  # Review timed out
         return "TIMEOUT"  # Indicate timeout occurred
 
 # Node registration

@@ -7,25 +7,23 @@ import { app } from "../../scripts/app.js";
 import { api } from "../../scripts/api.js";
 import { nfPreviewDialog } from './preview_dialog.js';
 
-console.log("NF Preview Selector: Loading extension...");
+// NF Preview Selector loading
 
 app.registerExtension({
     name: "nf.preview_selector",
     
     async setup() {
-        console.log("NF Preview Selector: Setting up extension");
-        console.log("NF Preview Selector: API object:", api);
-        console.log("NF Preview Selector: API addEventListener available:", typeof api.addEventListener);
+        // Setting up extension
         
         // Register message handler using ComfyUI's system
         if (api.addEventListener) {
             // Register for our custom event type
             api.addEventListener("nf_preview_request", (event) => {
-                console.log("NF Preview Selector: Received review request via event", event.detail);
+                // Received review request
                 nfPreviewDialog.show(event.detail);
             });
             
-            console.log("NF Preview Selector: Event listener registered for nf_preview_request");
+            // Event listener registered
         }
         
         // Event system is working correctly
@@ -49,12 +47,12 @@ app.registerExtension({
         
         // Auto-select first image setting removed - this is available in node UI
         
-        console.log("NF Preview Selector: Setup complete");
+        // Setup complete
     },
     
     async nodeCreated(node) {
         if (node.comfyClass === "NFPreviewSelector") {
-            console.log("NF Preview Selector: Node created", node.id);
+            // Node created
             
             // Set node title
             node.title = "NF Preview Selector";
@@ -68,7 +66,7 @@ app.registerExtension({
     
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
         if (nodeData.name === "NFPreviewSelector") {
-            console.log("NF Preview Selector: Registering node definition");
+            // Registering node definition
             
             // Add any node definition modifications here
             const onNodeCreated = nodeType.prototype.onNodeCreated;
@@ -84,4 +82,4 @@ app.registerExtension({
     }
 });
 
-console.log("NF Preview Selector: Extension loaded successfully");
+// Extension loaded successfully
