@@ -23,6 +23,8 @@ A floating dialog-based image preview and selection system for ComfyUI.
    - **take_last**: Automatically selects last image
 4. Set timeout value (10-300 seconds)
 
+  <img width="284" height="517" alt="Main node" src="https://github.com/user-attachments/assets/0509c1d4-bb15-4f46-b924-383fd63981cb" />
+
 ## Dialog Interface
 
 When in review mode, a floating dialog will appear showing:
@@ -32,12 +34,15 @@ When in review mode, a floating dialog will appear showing:
 - Countdown timer
 - Confirm/Cancel buttons
 
+  <img width="316" height="528" alt="Dialog Interface" src="https://github.com/user-attachments/assets/e2bc576e-5e66-4735-beb0-2742a8a0d419" />
+
 ## Settings
 
 Access via ComfyUI Settings menu:
 - **Dialog maximum width**: Determines the maximum width of the dialog in pixels. (Max 1800px)
 - **Remember window position**: Saves dialog position between uses
 
+<img width="544" height="121" alt="Settings" src="https://github.com/user-attachments/assets/105277be-b16d-4d66-b683-9617f097a201" />
 
 ## Outputs
 
