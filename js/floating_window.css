@@ -55,11 +55,20 @@
 /* Image Grid */
 .nf-image-grid {
     display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(var(--min-column-width, 150px), 1fr));
     gap: 8px;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     flex: 1; /* Take up remaining space */
     overflow-y: auto;
     min-height: 0; /* Allow shrinking */
+    align-items: start;
+}
+
+/* Smart grid layout that adapts to content and window size */
+.nf-image-grid.smart-grid-layout {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(var(--min-column-width, 150px), 1fr));
+    gap: 8px;
+    align-items: start;
 }
 
 .nf-image-container {
@@ -68,6 +77,12 @@
     border-radius: 4px;
     cursor: pointer;
     transition: border-color 0.2s;
+}
+
+/* Responsive image containers */
+.nf-image-grid.smart-grid-layout .nf-image-container {
+    width: 100%;
+    max-width: 100%;
 }
 
 .nf-image-container:hover {

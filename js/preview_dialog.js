@@ -22,6 +22,9 @@ export class NFPreviewDialog {
         
         // Apply max width setting
         this.applyMaxWidthSetting();
+        
+        // Setup Queue Prompt keybinding integration
+        this.setupQueuePromptIntegration();
     }
     
     loadCSS() {
@@ -55,6 +58,55 @@ export class NFPreviewDialog {
         }
         
         document.head.appendChild(style);
+    }
+    
+    setupQueuePromptIntegration() {
+        // Listen for Queue Prompt keybinding events
+        document.addEventListener('keydown', (event) => {
+            // Check if it's Ctrl+Enter (Queue Prompt) or Ctrl+Shift+Enter (Queue Prompt to Front)
+            if (event.ctrlKey && event.key === 'Enter') {
+                // Only handle if preview dialog is visible
+                if (this.isVisible()) {
+                    console.log('NF Preview Dialog: Queue Prompt keybinding detected - stopping dialog and allowing queue to proceed');
+                    
+                    // Stop the dialog processing immediately
+                    this.stopDialogForQueue();
+                    
+                    // Allow the event to propagate to ComfyUI's queue system
+                    // Do not prevent default - let ComfyUI handle the queue
+                }
+            }
+        });
+        
+        // Also listen for programmatic queue events via API
+        api.addEventListener("status", (event) => {
+            const status = event.detail;
+            
+            // If queue is starting and dialog is visible, stop the dialog
+            if (status && status.exec_info && status.exec_info.queue_remaining > 0) {
+                if (this.isVisible()) {
+                    console.log('NF Preview Dialog: Queue started programmatically - stopping dialog');
+                    this.stopDialogForQueue();
+                }
+            }
+        });
+    }
+    
+    stopDialogForQueue() {
+        // Stop countdown immediately
+        this.stopCountdown();
+        
+        console.log('NF Preview Dialog: Stopping dialog processing for queue');
+        
+        // Send cancellation response to backend (empty selection, cancelled=true)
+        this.sendSelection([], true);
+        
+        // Hide the dialog
+        this.hide();
+    }
+    
+    isVisible() {
+        return this.window && !this.window.classList.contains('hidden');
     }
     
     show(data) {
@@ -177,6 +229,11 @@ export class NFPreviewDialog {
     renderImages() {
         this.imageGrid.innerHTML = '';
         
+        // Counter for loaded images to determine layout
+        let loadedImages = 0;
+        let landscapeCount = 0;
+        let portraitCount = 0;
+        
         this.images.forEach((imageInfo, index) => {
             const container = document.createElement('div');
             container.className = 'nf-image-container';
@@ -188,6 +245,23 @@ export class NFPreviewDialog {
             img.src = this.getImageUrl(imageInfo);
             img.alt = `Image ${index + 1}`;
             
+            // Check image aspect ratio when loaded
+            img.onload = () => {
+                loadedImages++;
+                
+                const aspectRatio = img.naturalWidth / img.naturalHeight;
+                if (aspectRatio > 1.1) { // Landscape (wider than tall)
+                    landscapeCount++;
+                } else if (aspectRatio < 0.9) { // Portrait (taller than wide)
+                    portraitCount++;
+                }
+                
+                // When all images are loaded, determine layout
+                if (loadedImages === this.images.length) {
+                    this.applyImageLayout(landscapeCount, portraitCount);
+                }
+            };
+            
             const overlay = document.createElement('div');
             overlay.className = 'nf-image-overlay';
             overlay.textContent = index + 1;
@@ -196,6 +270,27 @@ export class NFPreviewDialog {
             container.appendChild(overlay);
             this.imageGrid.appendChild(container);
         });
+    }
+    
+    applyImageLayout(landscapeCount, portraitCount) {
+        // Always use smart grid layout that adapts to window size
+        this.imageGrid.className = 'nf-image-grid smart-grid-layout';
+        
+        // Set CSS custom properties for dynamic grid sizing
+        const dialogWidth = this.window.offsetWidth - 48; // Account for padding
+        const isLandscapeDominant = landscapeCount > portraitCount;
+        
+        if (isLandscapeDominant) {
+            // For landscape images, use slightly wider columns but still allow multiple columns
+            const minColumnWidth = Math.max(200, Math.min(300, dialogWidth / 2)); // 200-300px, max 2 columns typically
+            this.imageGrid.style.setProperty('--min-column-width', `${minColumnWidth}px`);
+            console.log('NF Preview Dialog: Using smart grid layout optimized for landscape images, min width:', minColumnWidth);
+        } else {
+            // For portrait/square images, use standard grid sizing
+            const minColumnWidth = Math.max(120, Math.min(200, dialogWidth / 3)); // 120-200px, allow up to 3-4 columns
+            this.imageGrid.style.setProperty('--min-column-width', `${minColumnWidth}px`);
+            console.log('NF Preview Dialog: Using smart grid layout optimized for portrait/square images, min width:', minColumnWidth);
+        }
     }
     
     getImageUrl(imageInfo) {
@@ -397,6 +492,28 @@ export class NFPreviewDialog {
         if (rememberPosition) {
             this.saveSize(width, height);
         }
+        
+        // Recalculate grid layout for new window size
+        if (this.imageGrid && this.imageGrid.children.length > 0) {
+            // Get current aspect ratio distribution
+            let landscapeCount = 0;
+            let portraitCount = 0;
+            
+            for (let container of this.imageGrid.children) {
+                const img = container.querySelector('img');
+                if (img && img.naturalWidth && img.naturalHeight) {
+                    const aspectRatio = img.naturalWidth / img.naturalHeight;
+                    if (aspectRatio > 1.1) {
+                        landscapeCount++;
+                    } else if (aspectRatio < 0.9) {
+                        portraitCount++;
+                    }
+                }
+            }
+            
+            this.applyImageLayout(landscapeCount, portraitCount);
+        }
+        
         console.log("NF Preview Dialog: Window resized to", width, height);
     }
 }
