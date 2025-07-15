@@ -1,6 +1,6 @@
 # NF Preview Selector
 
-A floating dialog-based image review and selection system for ComfyUI.
+A floating dialog-based image preview and selection system for ComfyUI.
 
 ## Features
 
@@ -27,7 +27,7 @@ A floating dialog-based image review and selection system for ComfyUI.
 
 When in review mode, a floating dialog will appear showing:
 - Grid of images to review
-- Click images to select/deselect (green border indicates selection)
+- Click images to select/deselect (green number mark indicates selection)
 - Selection counter
 - Countdown timer
 - Confirm/Cancel buttons
@@ -51,6 +51,7 @@ Access via ComfyUI Settings menu:
  ```git pull https://github.com/NyaFuP/ComfyUI_Preview_Selector.git```
 3. Restart ComfyUI
 4. The "NF Preview Selector" node will appear in the "image/review" category
+- Installation from ComfyUI is not yet available.
 
 ## Technical Details
 
@@ -60,6 +61,12 @@ Access via ComfyUI Settings menu:
 - Supports both image and latent workflows
 - Minimal dependencies (uses ComfyUI's built-in APIs)
 
+## Known Issues
+- When this custom node is waiting for user input, the previewed image will not be saved if you select "Cancel" or if it times out. Currently, implementing a fix for this is beyond my abilities, so it will remain as is until I can get some hints on how to improve it.
+
+## Precautions
+
+- I created this custom node because I needed it for my own use. I am a beginner at coding and developed it with the assistance of Claude Code. Therefore, I am unable to provide detailed support even if there are issues with this custom node.
 
 ## Credits
 
