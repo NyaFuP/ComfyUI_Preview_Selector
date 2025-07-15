@@ -69,7 +69,7 @@ Access via ComfyUI Settings menu:
 ## Known Issues
 - When this custom node is waiting for user input, the previewed image will not be saved if you select "Cancel" or if it times out. Currently, implementing a fix for this is beyond my abilities, so it will remain as is until I can get some hints on how to improve it.
 
-## Precautions
+## Please Note
 
 - I created this custom node because I needed it for my own use. I am a beginner at coding and developed it with the assistance of Claude Code. Therefore, I am unable to provide detailed support even if there are issues with this custom node.
 
