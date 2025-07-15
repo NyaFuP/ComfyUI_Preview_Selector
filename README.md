@@ -1,6 +1,6 @@
 # NF Preview Selector
 
-A floating dialog-based image review and selection system for ComfyUI. Inspired by cg-image-filter but designed as a simpler, more focused solution for image preview workflows.
+A floating dialog-based image review and selection system for ComfyUI.
 
 ## Features
 
@@ -49,8 +49,8 @@ Access via ComfyUI Settings menu:
 
 1. Run git pull in the directory "ComfyUI/custom_nodes/".
  ```git pull https://github.com/NyaFuP/ComfyUI_Preview_Selector.git```
-2. Restart ComfyUI
-3. The "NF Preview Selector" node will appear in the "image/review" category
+3. Restart ComfyUI
+4. The "NF Preview Selector" node will appear in the "image/review" category
 
 ## Technical Details
 
@@ -61,6 +61,6 @@ Access via ComfyUI Settings menu:
 - Minimal dependencies (uses ComfyUI's built-in APIs)
 
 
-## License
+## Credits
 
-This implementation is provided as-is for educational and development purposes.
+This custom node was implemented with reference to [cg-image-filter](https://github.com/chrisgoringe/cg-image-filter).
