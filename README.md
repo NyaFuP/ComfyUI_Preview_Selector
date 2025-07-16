@@ -2,6 +2,8 @@
 
 A floating dialog-based image preview and selection system for ComfyUI.
 
+日本語版READMEは[こちら](README-ja.md)です。
+
 ## Features
 
 - **Floating Dialog Interface**: Non-intrusive dialog window
