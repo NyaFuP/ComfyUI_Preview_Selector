@@ -54,7 +54,7 @@ Access via ComfyUI Settings menu:
 
 ## Installation
 
-1. It can be installed from ComfyUI Manager. Or run “git pull” in the “ComfyUI/custom_nodes/” directory.
+1. It can be installed from ComfyUI Manager. Or run “git clone” in the “ComfyUI/custom_nodes/” directory.
 2. Restart ComfyUI
 3. The "NF Preview Selector" node will appear in the "image/review" category
 - ~~Installation from ComfyUI Manager is not yet available~~
