@@ -1,5 +1,5 @@
 [project]
-name = "preview_selector"
+name = "ComfyUI_Preview_Selector"
 description = ""
 version = "1.0.0"
 license = {file = "LICENSE"}
