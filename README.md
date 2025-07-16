@@ -52,11 +52,10 @@ Access via ComfyUI Settings menu:
 
 ## Installation
 
-1. Run git pull in the directory "ComfyUI/custom_nodes/".
- ```git pull https://github.com/NyaFuP/ComfyUI_Preview_Selector.git```
-3. Restart ComfyUI
-4. The "NF Preview Selector" node will appear in the "image/review" category
-- Installation from ComfyUI Manager is not yet available.
+1. It can be installed from ComfyUI Manager. Or run “git pull” in the “ComfyUI/custom_nodes/” directory.
+2. Restart ComfyUI
+3. The "NF Preview Selector" node will appear in the "image/review" category
+- ~~Installation from ComfyUI Manager is not yet available~~
 
 ## Technical Details
 
