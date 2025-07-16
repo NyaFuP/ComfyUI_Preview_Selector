@@ -9,6 +9,6 @@ Repository = "https://github.com/NyaFuP/ComfyUI_Preview_Selector"
 #  Used by Comfy Registry https://comfyregistry.org
 
 [tool.comfy]
-PublisherId = ""
+PublisherId = "nyafu"
 DisplayName = "ComfyUI_Preview_Selector"
 Icon = ""
