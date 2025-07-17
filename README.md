@@ -4,6 +4,11 @@ A floating dialog-based image preview and selection system for ComfyUI.
 
 日本語版READMEは[こちら](README-ja.md)です。
 
+## Suggested Workflow
+1. Generate images in a batch.
+2. Select your favorite results.
+3. Process them with Hires fixes or other enhancements.
+
 ## Features
 
 - **Floating Dialog Interface**: Non-intrusive dialog window
@@ -58,14 +63,6 @@ Access via ComfyUI Settings menu:
 2. Restart ComfyUI
 3. The "NF Preview Selector" node will appear in the "image/review" category
 - ~~Installation from ComfyUI Manager is not yet available~~
-
-## Technical Details
-
-- Built with modern JavaScript ES6 modules
-- CSS-styled floating window system
-- WebSocket communication with ComfyUI backend
-- Supports both image and latent workflows
-- Minimal dependencies (uses ComfyUI's built-in APIs)
 
 ## Known Issues
 - When this custom node is waiting for user input, the previewed image will not be saved if you select "Cancel" or if it times out. Currently, implementing a fix for this is beyond my abilities, so it will remain as is until I can get some hints on how to improve it.
