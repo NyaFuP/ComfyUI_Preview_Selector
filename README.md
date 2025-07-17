@@ -4,7 +4,7 @@ A floating dialog-based image preview and selection system for ComfyUI.
 
 日本語版READMEは[こちら](README-ja.md)です。
 
-## Suggested Workflow
+## Intended Use
 1. Generate images in a batch.
 2. Select your favorite results.
 3. Process them with Hires fixes or other enhancements.
