@@ -1,5 +1,6 @@
 """
 NF Preview Selector - Floating dialog image review system
+
 """
 
 import torch
