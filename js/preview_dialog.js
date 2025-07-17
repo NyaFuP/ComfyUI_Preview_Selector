@@ -287,7 +287,7 @@ export class NFPreviewDialog {
             // Using landscape image layout
         } else {
             // For portrait/square images, use standard grid sizing
-            const minColumnWidth = Math.max(120, Math.min(200, dialogWidth / 3)); // 120-200px, allow up to 3-4 columns
+            const minColumnWidth = Math.max(200, Math.min(250, dialogWidth / 3)); // 200-250px, allow up to 3-4 columns
             this.imageGrid.style.setProperty('--min-column-width', `${minColumnWidth}px`);
             // Using portrait/square image layout
         }
