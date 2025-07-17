@@ -94,11 +94,6 @@ export class NFPreviewDialog {
     }
     
     stopDialogForQueue() {
-        // If dialog is pinned, don't stop it
-        if (this.isPinned) {
-            return;
-        }
-        
         // Stop countdown immediately
         this.stopCountdown();
         
@@ -107,8 +102,12 @@ export class NFPreviewDialog {
         // Send cancellation response to backend (empty selection, cancelled=true)
         this.sendSelection([], true);
         
-        // Hide the dialog
-        this.hide();
+        // If dialog is pinned, don't hide it - just reset for next use
+        if (this.isPinned) {
+            this.prepareForNextRequest();
+        } else {
+            this.hide();
+        }
     }
     
     isVisible() {
@@ -386,10 +385,6 @@ export class NFPreviewDialog {
         
         // If pinned, don't hide dialog - just reset for next use
         if (this.isPinned) {
-            // Send additional cancel response to unblock backend for next generation
-            setTimeout(() => {
-                this.sendSelection([], true);
-            }, 100);
             this.prepareForNextRequest();
         } else {
             this.hide();
@@ -404,10 +399,6 @@ export class NFPreviewDialog {
         
         // If pinned, don't hide dialog - just reset for next use
         if (this.isPinned) {
-            // Send additional cancel response to unblock backend for next generation
-            setTimeout(() => {
-                this.sendSelection([], true);
-            }, 100);
             this.prepareForNextRequest();
         } else {
             this.hide();
@@ -417,7 +408,7 @@ export class NFPreviewDialog {
     prepareForNextRequest() {
         // Reset dialog state for next request while keeping it open
         this.selectedIndices.clear();
-        this.updateImageSelection();
+        this.clearImageSelection();
         this.updateSelectionInfo();
         this.updateConfirmButton();
         this.stopCountdown();
@@ -451,10 +442,6 @@ export class NFPreviewDialog {
         
         // If pinned, don't hide dialog - just reset for next use
         if (this.isPinned) {
-            // Send additional cancel response to unblock backend for next generation
-            setTimeout(() => {
-                this.sendSelection([], true);
-            }, 100);
             this.prepareForNextRequest();
         } else {
             this.hide();
