@@ -169,12 +169,48 @@
     background-color: #777;
 }
 
+.nf-button.pin {
+    background-color: #2196F3;
+    color: white;
+    padding: 8px 12px;
+    min-width: 40px;
+    font-size: 14px;
+}
+
+.nf-button.pin:hover {
+    background-color: #1976D2;
+}
+
+.nf-button.pin.active {
+    background-color: #FF9800;
+    box-shadow: 0 0 8px rgba(255, 152, 0, 0.5);
+}
+
+.nf-button.pin.active:hover {
+    background-color: #F57C00;
+}
+
 /* Countdown */
 .nf-countdown {
     font-size: 11px;
     color: #ff9800;
     text-align: center;
     padding: 4px;
+}
+
+/* Waiting Message */
+.nf-waiting-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    font-size: 16px;
+    color: #888;
+    text-align: center;
+    font-style: italic;
+    border: 2px dashed #666;
+    border-radius: 8px;
+    margin: 20px;
 }
 
 /* Max width is now configurable via settings */

@@ -16,6 +16,7 @@ export class NFPreviewDialog {
         this.timeout = 60;
         this.countdownInterval = null;
         this.remainingTime = 0;
+        this.isPinned = false;
         
         // Load CSS
         this.loadCSS();
@@ -93,6 +94,11 @@ export class NFPreviewDialog {
     }
     
     stopDialogForQueue() {
+        // If dialog is pinned, don't stop it
+        if (this.isPinned) {
+            return;
+        }
+        
         // Stop countdown immediately
         this.stopCountdown();
         
@@ -118,6 +124,12 @@ export class NFPreviewDialog {
         // If dialog is already open for this review, don't create another
         if (this.reviewId === data.review_id && this.window) {
             // Dialog already open
+            return;
+        }
+        
+        // If dialog is pinned and visible, update with new data
+        if (this.isPinned && this.isVisible()) {
+            this.updateWithNewData(data);
             return;
         }
         
@@ -166,6 +178,7 @@ export class NFPreviewDialog {
         );
         
         this.setupWindowContent();
+        this.updateWindowTitle();
         
         // Apply saved size if available and position memory is enabled
         if (rememberPosition) {
@@ -216,8 +229,17 @@ export class NFPreviewDialog {
         this.cancelButton.textContent = 'Cancel';
         this.cancelButton.onclick = this.cancelSelection.bind(this);
         
+        // Pin button
+        this.pinButton = document.createElement('button');
+        this.pinButton.className = 'nf-button pin';
+        this.pinButton.innerHTML = '📌';
+        this.pinButton.title = 'Pin dialog to keep open during new generations';
+        this.pinButton.onclick = this.togglePin.bind(this);
+        this.updatePinButton();
+        
         this.buttons.appendChild(this.confirmButton);
         this.buttons.appendChild(this.cancelButton);
+        this.buttons.appendChild(this.pinButton);
         
         this.controls.appendChild(this.selectionInfo);
         this.controls.appendChild(this.countdown);
@@ -361,7 +383,17 @@ export class NFPreviewDialog {
         // Confirming selection
         
         this.sendSelection(selection, false);
-        this.hide();
+        
+        // If pinned, don't hide dialog - just reset for next use
+        if (this.isPinned) {
+            // Send additional cancel response to unblock backend for next generation
+            setTimeout(() => {
+                this.sendSelection([], true);
+            }, 100);
+            this.prepareForNextRequest();
+        } else {
+            this.hide();
+        }
     }
     
     cancelSelection() {
@@ -369,7 +401,43 @@ export class NFPreviewDialog {
         
         // Cancelling selection
         this.sendSelection([], true);
-        this.hide();
+        
+        // If pinned, don't hide dialog - just reset for next use
+        if (this.isPinned) {
+            // Send additional cancel response to unblock backend for next generation
+            setTimeout(() => {
+                this.sendSelection([], true);
+            }, 100);
+            this.prepareForNextRequest();
+        } else {
+            this.hide();
+        }
+    }
+    
+    prepareForNextRequest() {
+        // Reset dialog state for next request while keeping it open
+        this.selectedIndices.clear();
+        this.updateImageSelection();
+        this.updateSelectionInfo();
+        this.updateConfirmButton();
+        this.stopCountdown();
+        
+        // Clear images and show waiting message
+        this.images = [];
+        this.reviewId = null;
+        this.uniqueId = null;
+        
+        // Show waiting message
+        this.showWaitingMessage();
+    }
+    
+    showWaitingMessage() {
+        if (this.imageGrid) {
+            this.imageGrid.innerHTML = '<div class="nf-waiting-message">Waiting for next generation...</div>';
+        }
+        if (this.countdown) {
+            this.countdown.textContent = 'Pinned - waiting for next request';
+        }
     }
     
     timeoutSelection() {
@@ -380,7 +448,17 @@ export class NFPreviewDialog {
         // Timeout - returning empty selection
         
         this.sendSelection(selection, false);
-        this.hide();
+        
+        // If pinned, don't hide dialog - just reset for next use
+        if (this.isPinned) {
+            // Send additional cancel response to unblock backend for next generation
+            setTimeout(() => {
+                this.sendSelection([], true);
+            }, 100);
+            this.prepareForNextRequest();
+        } else {
+            this.hide();
+        }
     }
     
     sendSelection(indices, cancelled) {
@@ -515,6 +593,47 @@ export class NFPreviewDialog {
         }
         
         // Window resized
+    }
+    
+    togglePin() {
+        this.isPinned = !this.isPinned;
+        this.updatePinButton();
+        this.updateWindowTitle();
+    }
+    
+    updatePinButton() {
+        if (this.pinButton) {
+            this.pinButton.classList.toggle('active', this.isPinned);
+            this.pinButton.title = this.isPinned ? 
+                'Unpin dialog (will close on new generations)' : 
+                'Pin dialog to keep open during new generations';
+        }
+    }
+    
+    updateWindowTitle() {
+        if (this.window && this.window.titleElement) {
+            const baseTitle = 'NF Preview Selector';
+            this.window.titleElement.textContent = this.isPinned ? `${baseTitle} (Pinned)` : baseTitle;
+        }
+    }
+    
+    updateWithNewData(data) {
+        // Stop current countdown
+        this.stopCountdown();
+        
+        // Update data
+        this.reviewId = data.review_id;
+        this.uniqueId = data.unique_id;
+        this.images = data.images || [];
+        this.timeout = data.timeout || 60;
+        this.remainingTime = this.timeout;
+        this.selectedIndices.clear();
+        
+        // Re-render images and restart countdown
+        this.renderImages();
+        this.updateSelectionInfo();
+        this.updateConfirmButton();
+        this.startCountdown();
     }
 }
 
