@@ -22,7 +22,6 @@ export class NFPreviewDialog {
         // Load CSS
         this.loadCSS();
         
-        // Apply max width setting
         this.applyMaxWidthSetting();
         
         // Setup Queue Prompt keybinding integration
@@ -37,14 +36,11 @@ export class NFPreviewDialog {
     }
     
     applyMaxWidthSetting() {
-        // Get max width setting from ComfyUI settings (try new ID first, fallback to old)
         let maxWidth = app.ui.settings.getSettingValue("NFPreviewSelector.UI.MaxWidth.v2", 
             app.ui.settings.getSettingValue("NFPreviewSelector.UI.MaxWidth", 800));
         
-        // Validate and clamp the value between 400 and 1800
         maxWidth = Math.max(400, Math.min(1800, maxWidth));
         
-        // Create or update CSS rule for max width
         const style = document.createElement('style');
         style.id = 'nf-preview-max-width-style';
         style.textContent = `
@@ -53,7 +49,6 @@ export class NFPreviewDialog {
             }
         `;
         
-        // Remove existing style if it exists
         const existingStyle = document.getElementById('nf-preview-max-width-style');
         if (existingStyle) {
             existingStyle.remove();
@@ -65,29 +60,19 @@ export class NFPreviewDialog {
     setupQueuePromptIntegration() {
         // Listen for Queue Prompt keybinding events
         document.addEventListener('keydown', (event) => {
-            // Check if it's Ctrl+Enter (Queue Prompt) or Ctrl+Shift+Enter (Queue Prompt to Front)
             if (event.ctrlKey && event.key === 'Enter') {
-                // Only handle if preview dialog is visible
                 if (this.isVisible()) {
-                    // Queue Prompt keybinding detected
-                    
-                    // Stop the dialog processing immediately
                     this.stopDialogForQueue();
                     
-                    // Allow the event to propagate to ComfyUI's queue system
-                    // Do not prevent default - let ComfyUI handle the queue
                 }
             }
         });
         
-        // Also listen for programmatic queue events via API
         api.addEventListener("status", (event) => {
             const status = event.detail;
             
-            // If queue is starting and dialog is visible, stop the dialog
             if (status && status.exec_info && status.exec_info.queue_remaining > 0) {
                 if (this.isVisible()) {
-                    // Queue started programmatically
                     this.stopDialogForQueue();
                 }
             }
@@ -95,15 +80,10 @@ export class NFPreviewDialog {
     }
     
     stopDialogForQueue() {
-        // Stop countdown immediately
         this.stopCountdown();
         
-        // Stopping dialog processing for queue
-        
-        // Send cancellation response to backend (empty selection, cancelled=true)
         this.sendSelection([], true);
         
-        // If dialog is pinned, don't hide it - just reset for next use
         if (this.isPinned) {
             this.prepareForNextRequest();
         } else {
@@ -116,24 +96,18 @@ export class NFPreviewDialog {
     }
     
     show(data) {
-        // Showing review dialog
-        
         // Apply latest max width setting
         this.applyMaxWidthSetting();
         
-        // If dialog is already open for this review, don't create another
         if (this.reviewId === data.review_id && this.window) {
-            // Dialog already open
             return;
         }
         
-        // If dialog is pinned and visible, update with new data
         if (this.isPinned && this.isVisible()) {
             this.updateWithNewData(data);
             return;
         }
         
-        // Stop any existing countdown
         this.stopCountdown();
         
         this.images = data.images || [];
@@ -153,19 +127,16 @@ export class NFPreviewDialog {
             this.window.destroy();
         }
         
-        // Get saved position or calculate center position
         const rememberPosition = app.ui.settings.getSettingValue("NFPreviewSelector.UI.WindowPosition", true);
         const savedPosition = rememberPosition ? this.getSavedPosition() : null;
         let x, y;
         
         if (savedPosition) {
-            // Use saved position from previous session
             x = savedPosition.x;
             y = savedPosition.y;
         } else {
-            // First time or position memory disabled: calculate center position
-            x = Math.max(0, (window.innerWidth - 600) / 2);  // 600px is approximate dialog width
-            y = Math.max(0, (window.innerHeight - 400) / 2); // 400px is approximate dialog height
+            x = Math.max(0, (window.innerWidth - 600) / 2);
+            y = Math.max(0, (window.innerHeight - 400) / 2);
         }
         
         this.window = new NFFloatingWindow(
@@ -180,7 +151,6 @@ export class NFPreviewDialog {
         this.setupWindowContent();
         this.updateWindowTitle();
         
-        // Apply saved size if available and position memory is enabled
         if (rememberPosition) {
             const savedSize = this.getSavedSize();
             if (savedSize) {
@@ -189,7 +159,6 @@ export class NFPreviewDialog {
             }
         }
         
-        // Center the dialog only if no saved position (first time)
         if (!savedPosition) {
             this.centerDialog();
         }
@@ -205,12 +174,10 @@ export class NFPreviewDialog {
         this.controls = document.createElement('div');
         this.controls.className = 'nf-controls';
         
-        // Selection info
         this.selectionInfo = document.createElement('div');
         this.selectionInfo.className = 'nf-selection-info';
         this.updateSelectionInfo();
         
-        // Countdown
         this.countdown = document.createElement('div');
         this.countdown.className = 'nf-countdown';
         
@@ -229,7 +196,6 @@ export class NFPreviewDialog {
         this.cancelButton.textContent = 'Cancel';
         this.cancelButton.onclick = this.cancelSelection.bind(this);
         
-        // Pin button
         this.pinButton = document.createElement('button');
         this.pinButton.className = 'nf-button pin';
         this.pinButton.innerHTML = '📌';
@@ -251,7 +217,6 @@ export class NFPreviewDialog {
     renderImages() {
         this.imageGrid.innerHTML = '';
         
-        // Counter for loaded images to determine layout
         let loadedImages = 0;
         let landscapeCount = 0;
         let portraitCount = 0;
@@ -267,18 +232,16 @@ export class NFPreviewDialog {
             img.src = this.getImageUrl(imageInfo);
             img.alt = `Image ${index + 1}`;
             
-            // Check image aspect ratio when loaded
             img.onload = () => {
                 loadedImages++;
                 
                 const aspectRatio = img.naturalWidth / img.naturalHeight;
-                if (aspectRatio > 1.1) { // Landscape (wider than tall)
+                if (aspectRatio > 1.1) {
                     landscapeCount++;
-                } else if (aspectRatio < 0.9) { // Portrait (taller than wide)
+                } else if (aspectRatio < 0.9) {
                     portraitCount++;
                 }
                 
-                // When all images are loaded, determine layout
                 if (loadedImages === this.images.length) {
                     this.applyImageLayout(landscapeCount, portraitCount);
                 }
@@ -295,24 +258,94 @@ export class NFPreviewDialog {
     }
     
     applyImageLayout(landscapeCount, portraitCount) {
-        // Always use smart grid layout that adapts to window size
-        this.imageGrid.className = 'nf-image-grid smart-grid-layout';
+        this.imageGrid.className = 'nf-image-grid comfyui-layout';
         
-        // Set CSS custom properties for dynamic grid sizing
-        const dialogWidth = this.window.offsetWidth - 48; // Account for padding
+        const dialogWidth = this.window.offsetWidth - 48;
+        const dialogHeight = this.window.offsetHeight - 140;
+        
+        const layoutResult = this.calculateComfyUILayout(this.images, dialogWidth, dialogHeight);
+        
+        this.imageGrid.style.setProperty('--min-column-width', `${layoutResult.cellWidth}px`);
+        this.imageGrid.style.setProperty('--cell-height', `${layoutResult.cellHeight}px`);
+        this.imageGrid.style.setProperty('--max-columns', layoutResult.cols);
+        this.imageGrid.style.setProperty('--max-rows', layoutResult.rows);
+        
+    }
+    
+    calculateComfyUILayout(images, availableWidth, availableHeight) {
+        if (!images || images.length === 0) {
+            return { cellWidth: 200, cellHeight: 200, cols: 1, rows: 1 };
+        }
+        
+        let imageWidth = 512;
+        let imageHeight = 512;
+        
+        const firstImageContainer = this.imageGrid.querySelector('.nf-image-container img');
+        if (firstImageContainer && firstImageContainer.naturalWidth > 0) {
+            imageWidth = firstImageContainer.naturalWidth;
+            imageHeight = firstImageContainer.naturalHeight;
+        }
+        
+        const numImages = images.length;
+        let bestArea = 0;
+        let bestResult = { cellWidth: 200, cellHeight: 200, cols: 1, rows: 1 };
+        
+        for (let cols = 1; cols <= numImages; cols++) {
+            const rows = Math.ceil(numImages / cols);
+            const cellWidth_available = availableWidth / cols;
+            const cellHeight_available = availableHeight / rows;
+            
+            const scaleX = cellWidth_available / imageWidth;
+            const scaleY = cellHeight_available / imageHeight;
+            const scale = Math.min(scaleX, scaleY, 1);
+            
+            const cellWidth = imageWidth * scale;
+            const cellHeight = imageHeight * scale;
+            
+            const totalDisplayArea = cellWidth * cellHeight * numImages;
+            
+            if (totalDisplayArea > bestArea) {
+                bestArea = totalDisplayArea;
+                bestResult = {
+                    cellWidth: Math.round(cellWidth),
+                    cellHeight: Math.round(cellHeight),
+                    cols,
+                    rows
+                };
+            }
+        }
+        
+        return bestResult;
+    }
+    
+    calculateResponsiveColumnWidth(landscapeCount, portraitCount) {
+        const dialogWidth = this.window.offsetWidth - 48;
         const isLandscapeDominant = landscapeCount > portraitCount;
         
-        if (isLandscapeDominant) {
-            // For landscape images, use slightly wider columns but still allow multiple columns
-            const minColumnWidth = Math.max(250, Math.min(350, dialogWidth / 2)); // 200-300px, max 2 columns typically
-            this.imageGrid.style.setProperty('--min-column-width', `${minColumnWidth}px`);
-            // Using landscape image layout
-        } else {
-            // For portrait/square images, use standard grid sizing
-            const minColumnWidth = Math.max(120, Math.min(250, dialogWidth / 3)); // 200-250px, allow up to 3-4 columns
-            this.imageGrid.style.setProperty('--min-column-width', `${minColumnWidth}px`);
-            // Using portrait/square image layout
-        }
+        const devicePixelRatio = window.devicePixelRatio || 1;
+        const dpiMultiplier = Math.min(Math.max(devicePixelRatio, 1), 2);
+        
+        const baseRatio = isLandscapeDominant ? 0.45 : 0.30; // 45% for landscape, 30% for portrait
+        const maxColumns = isLandscapeDominant ? 2 : 4;
+        
+        const baseColumnWidth = dialogWidth * baseRatio;
+        
+        const dpiAwareColumnWidth = baseColumnWidth * dpiMultiplier;
+        
+        const minWidthForColumns = dialogWidth / maxColumns;
+        
+        const absoluteMin = isLandscapeDominant ? 200 : 120;
+        const absoluteMax = isLandscapeDominant ? 600 : 400;
+        
+        const finalColumnWidth = Math.max(
+            absoluteMin,
+            Math.min(
+                absoluteMax,
+                Math.max(minWidthForColumns, dpiAwareColumnWidth)
+            )
+        );
+        
+        return Math.round(finalColumnWidth);
     }
     
     getImageUrl(imageInfo) {
@@ -333,7 +366,6 @@ export class NFPreviewDialog {
         this.updateSelectionInfo();
         this.updateConfirmButton();
         
-        // Selected indices updated
     }
     
     updateSelectionInfo() {
@@ -357,7 +389,6 @@ export class NFPreviewDialog {
             this.updateCountdown();
             
             if (this.remainingTime <= 0) {
-                // Timeout reached
                 this.timeoutSelection();
             }
         }, 1000);
@@ -380,11 +411,9 @@ export class NFPreviewDialog {
         this.stopCountdown();
         
         const selection = Array.from(this.selectedIndices).sort((a, b) => a - b);
-        // Confirming selection
         
         this.sendSelection(selection, false);
         
-        // If pinned, don't hide dialog - just reset for next use
         if (this.isPinned) {
             this.prepareForNextRequest();
         } else {
@@ -395,10 +424,8 @@ export class NFPreviewDialog {
     cancelSelection() {
         this.stopCountdown();
         
-        // Cancelling selection
         this.sendSelection([], true);
         
-        // If pinned, don't hide dialog - just reset for next use
         if (this.isPinned) {
             this.prepareForNextRequest();
         } else {
@@ -407,19 +434,16 @@ export class NFPreviewDialog {
     }
     
     prepareForNextRequest() {
-        // Reset dialog state for next request while keeping it open
         this.selectedIndices.clear();
         this.clearImageSelection();
         this.updateSelectionInfo();
         this.updateConfirmButton();
         this.stopCountdown();
         
-        // Clear images and show waiting message
         this.images = [];
         this.reviewId = null;
         this.uniqueId = null;
         
-        // Show waiting message
         this.showWaitingMessage();
     }
     
@@ -435,13 +459,10 @@ export class NFPreviewDialog {
     timeoutSelection() {
         this.stopCountdown();
         
-        // On timeout, select all images or none based on setting
-        const selection = []; // Default to empty selection on timeout
-        // Timeout - returning empty selection
+        const selection = [];
         
         this.sendSelection(selection, false);
         
-        // If pinned, don't hide dialog - just reset for next use
         if (this.isPinned) {
             this.prepareForNextRequest();
         } else {
@@ -457,7 +478,6 @@ export class NFPreviewDialog {
             cancelled: cancelled
         };
         
-        // Send response to backend
         fetch('/nf_preview_response', {
             method: 'POST',
             headers: {
@@ -465,7 +485,6 @@ export class NFPreviewDialog {
             },
             body: JSON.stringify(response)
         }).catch(error => {
-            console.error("NF Preview Dialog: Error sending response:", error);
         });
     }
     
@@ -483,7 +502,6 @@ export class NFPreviewDialog {
     centerDialog() {
         if (!this.window) return;
         
-        // Wait for the DOM to update and get actual dimensions
         setTimeout(() => {
             const dialogRect = this.window.getBoundingClientRect();
             const centerX = Math.max(0, (window.innerWidth - dialogRect.width) / 2);
@@ -498,14 +516,12 @@ export class NFPreviewDialog {
             const saved = localStorage.getItem('nf-preview-dialog-position');
             if (saved) {
                 const position = JSON.parse(saved);
-                // Validate position is within screen bounds
                 if (position.x >= 0 && position.y >= 0 && 
                     position.x < window.innerWidth && position.y < window.innerHeight) {
                     return position;
                 }
             }
         } catch (e) {
-            console.warn("NF Preview Dialog: Error loading saved position:", e);
         }
         return null;
     }
@@ -514,7 +530,6 @@ export class NFPreviewDialog {
         try {
             localStorage.setItem('nf-preview-dialog-position', JSON.stringify({ x, y }));
         } catch (e) {
-            console.warn("NF Preview Dialog: Error saving position:", e);
         }
     }
     
@@ -523,14 +538,12 @@ export class NFPreviewDialog {
             const saved = localStorage.getItem('nf-preview-dialog-size');
             if (saved) {
                 const size = JSON.parse(saved);
-                // Validate size is reasonable
                 if (size.width > 200 && size.height > 150 && 
                     size.width < window.innerWidth + 100 && size.height < window.innerHeight + 100) {
                     return size;
                 }
             }
         } catch (e) {
-            console.warn("NF Preview Dialog: Error loading saved size:", e);
         }
         return null;
     }
@@ -539,29 +552,23 @@ export class NFPreviewDialog {
         try {
             localStorage.setItem('nf-preview-dialog-size', JSON.stringify({ width, height }));
         } catch (e) {
-            console.warn("NF Preview Dialog: Error saving size:", e);
         }
     }
     
     onWindowMove(x, y) {
-        // Save position when user moves the dialog (only if setting is enabled)
         const rememberPosition = app.ui.settings.getSettingValue("NFPreviewSelector.UI.WindowPosition", true);
         if (rememberPosition) {
             this.savePosition(x, y);
         }
-        // Window moved
     }
     
     onWindowResize(width, height) {
-        // Save size when user resizes the dialog (only if setting is enabled)
         const rememberPosition = app.ui.settings.getSettingValue("NFPreviewSelector.UI.WindowPosition", true);
         if (rememberPosition) {
             this.saveSize(width, height);
         }
         
-        // Recalculate grid layout for new window size
         if (this.imageGrid && this.imageGrid.children.length > 0) {
-            // Get current aspect ratio distribution
             let landscapeCount = 0;
             let portraitCount = 0;
             
@@ -580,7 +587,6 @@ export class NFPreviewDialog {
             this.applyImageLayout(landscapeCount, portraitCount);
         }
         
-        // Window resized
     }
     
     togglePin() {
@@ -606,10 +612,8 @@ export class NFPreviewDialog {
     }
     
     updateWithNewData(data) {
-        // Stop current countdown
         this.stopCountdown();
         
-        // Update data
         this.reviewId = data.review_id;
         this.uniqueId = data.unique_id;
         this.images = data.images || [];
@@ -617,7 +621,6 @@ export class NFPreviewDialog {
         this.remainingTime = this.timeout;
         this.selectedIndices.clear();
         
-        // Re-render images and restart countdown
         this.renderImages();
         this.updateSelectionInfo();
         this.updateConfirmButton();

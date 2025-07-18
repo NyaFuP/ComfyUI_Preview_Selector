@@ -10,7 +10,6 @@ export class NFFloatingWindow extends HTMLDivElement {
         this.moveCallback = moveCallback;
         this.resizeCallback = resizeCallback;
         
-        // Setup window structure
         this.classList.add('nf-float');
         
         // Header
@@ -24,7 +23,6 @@ export class NFFloatingWindow extends HTMLDivElement {
         this.body.classList.add('nf-float-body');
         this.appendChild(this.body);
         
-        // Setup dragging
         this.dragging = false;
         this.position = { x: x, y: y };
         
@@ -33,17 +31,14 @@ export class NFFloatingWindow extends HTMLDivElement {
         document.addEventListener('mousemove', this.drag.bind(this));
         document.addEventListener('mouseleave', this.stopDrag.bind(this));
         
-        // Position window
         this.moveTo(x, y);
         
-        // Add to parent or body
         if (parent) {
             parent.appendChild(this);
         } else {
             document.body.appendChild(this);
         }
         
-        // Setup resize observer for size changes
         this.setupResizeObserver();
     }
     
@@ -110,5 +105,4 @@ export class NFFloatingWindow extends HTMLDivElement {
     }
 }
 
-// Register custom element
 customElements.define('nf-floating-window', NFFloatingWindow, { extends: 'div' });

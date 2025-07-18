@@ -26,7 +26,7 @@ async def handle_review_response(request):
         selection = data.get('selection', [])
         cancelled = data.get('cancelled', False)
         
-        pass  # Response received
+        pass
         
         # Store response
         review_responses[review_id] = {
@@ -36,7 +36,7 @@ async def handle_review_response(request):
         
         return web.json_response({'status': 'success'})
     except Exception as e:
-        pass  # Error handled
+        pass
         return web.json_response({'status': 'error', 'message': str(e)}, status=500)
 
 # Register API endpoint
@@ -78,7 +78,7 @@ class NFPreviewSelector(PreviewImage):
     def preview_images(self, images, mode, timeout, unique_id=None, latents=None, selection_indices="", prompt=None, extra_pnginfo=None):
         """Main function for image preview and selection"""
         
-        pass  # Processing images
+        pass
         
         # No flags needed anymore
         
@@ -115,9 +115,9 @@ class NFPreviewSelector(PreviewImage):
                 # Use ComfyUI's message dispatch system
                 try:
                     PromptServer.instance.send_sync("nf_preview_request", message_data)
-                    pass  # Request sent
+                    pass
                 except Exception as e:
-                    pass  # Fallback to direct WebSocket
+                    pass
                     # Fallback to direct WebSocket
                     message = {
                         "type": "nf_preview_request", 
@@ -129,20 +129,20 @@ class NFPreviewSelector(PreviewImage):
                             try:
                                 await ws.send_str(json.dumps(message))
                             except Exception as e:
-                                pass  # Send failed
+                                pass
                     
                     if PromptServer.instance.loop:
                         asyncio.run_coroutine_threadsafe(send_message(), PromptServer.instance.loop)
                 
-                pass  # Request sent
+                pass
                 
                 # Wait for response from frontend
                 result = self.wait_for_response(review_id, timeout)
                 if result == "CANCELLED":
-                    pass  # Cancelled
+                    pass
                     raise InterruptProcessingException()
                 elif result == "TIMEOUT":
-                    pass  # Timed out 
+                    pass
                     raise InterruptProcessingException()
                 else:
                     selected_indices = result
@@ -154,7 +154,7 @@ class NFPreviewSelector(PreviewImage):
         # Process selection
         if not selected_indices:
             # For timeout or other cases, return empty tensors
-            pass  # No selection
+            pass
             empty_image = torch.zeros((1, images.shape[1], images.shape[2], images.shape[3]))
             empty_latent = {"samples": torch.zeros((1, 4, 64, 64))} if latents is None else {"samples": torch.zeros((1, latents["samples"].shape[1], latents["samples"].shape[2], latents["samples"].shape[3]))}
             return (empty_image, empty_latent, "")
@@ -172,7 +172,7 @@ class NFPreviewSelector(PreviewImage):
 
         indices_str = ",".join(str(i) for i in selected_indices)
         
-        pass  # Selection made
+        pass
         
         return {
             "result": (selected_images, selected_latents, indices_str),
@@ -190,16 +190,16 @@ class NFPreviewSelector(PreviewImage):
                 response = review_responses.pop(review_id)
                 
                 if response['cancelled']:
-                    pass  # Review cancelled
+                    pass
                     return "CANCELLED"
                 else:
                     selection = response['selection']
-                    pass  # Review completed
+                    pass
                     return selection
             
             time.sleep(0.1)  # Poll every 100ms
         
-        pass  # Review timed out
+        pass
         return "TIMEOUT"  # Indicate timeout occurred
 
 # Node registration
