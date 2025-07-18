@@ -2,6 +2,7 @@
  * NF Preview Selector - Floating Window Styles
  */
 
+
 .nf-float {
     position: absolute;
     z-index: 999999;

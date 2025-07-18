@@ -2,6 +2,7 @@
  * NF Preview Selector - Preview Dialog Component
  */
 
+
 import { NFFloatingWindow } from './floating_window.js';
 import { api } from "../../scripts/api.js";
 import { app } from "../../scripts/app.js";
@@ -303,12 +304,12 @@ export class NFPreviewDialog {
         
         if (isLandscapeDominant) {
             // For landscape images, use slightly wider columns but still allow multiple columns
-            const minColumnWidth = Math.max(200, Math.min(300, dialogWidth / 2)); // 200-300px, max 2 columns typically
+            const minColumnWidth = Math.max(250, Math.min(350, dialogWidth / 2)); // 200-300px, max 2 columns typically
             this.imageGrid.style.setProperty('--min-column-width', `${minColumnWidth}px`);
             // Using landscape image layout
         } else {
             // For portrait/square images, use standard grid sizing
-            const minColumnWidth = Math.max(200, Math.min(250, dialogWidth / 3)); // 200-250px, allow up to 3-4 columns
+            const minColumnWidth = Math.max(120, Math.min(250, dialogWidth / 3)); // 200-250px, allow up to 3-4 columns
             this.imageGrid.style.setProperty('--min-column-width', `${minColumnWidth}px`);
             // Using portrait/square image layout
         }

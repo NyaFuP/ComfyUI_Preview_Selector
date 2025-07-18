@@ -3,6 +3,7 @@
  * Based on cg-image-filter FloatingWindow but simplified
  */
 
+
 export class NFFloatingWindow extends HTMLDivElement {
     constructor(title, x = 100, y = 100, parent = null, moveCallback = null, resizeCallback = null) {
         super();
