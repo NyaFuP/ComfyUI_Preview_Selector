@@ -19,6 +19,9 @@ export class NFPreviewDialog {
         this.remainingTime = 0;
         this.isPinned = false;
         
+        // v1.2.5: Expanded image view system
+        this.expandedView = null;
+        
         // Load CSS
         this.loadCSS();
         
@@ -226,6 +229,12 @@ export class NFPreviewDialog {
             container.className = 'nf-image-container';
             container.dataset.index = index;
             container.onclick = () => this.toggleImage(index);
+            
+            // v1.2.5: Add double-click for expanded view
+            container.ondblclick = (e) => {
+                e.stopPropagation();
+                this.showExpandedView(index);
+            };
             
             const img = document.createElement('img');
             img.className = 'nf-image';
@@ -625,6 +634,465 @@ export class NFPreviewDialog {
         this.updateSelectionInfo();
         this.updateConfirmButton();
         this.startCountdown();
+    }
+    
+    // v1.2.5: Expanded view functionality
+    showExpandedView(imageIndex) {
+        if (!this.expandedView) {
+            this.expandedView = new ExpandedImageView(this);
+        }
+        this.expandedView.show(imageIndex, this.images);
+    }
+    
+    hideExpandedView() {
+        if (this.expandedView) {
+            this.expandedView.hide();
+        }
+    }
+}
+
+// v1.2.5: Expanded Image View Class
+class ExpandedImageView {
+    constructor(dialog) {
+        this.dialog = dialog;
+        this.overlay = null;
+        this.imageElement = null;
+        this.container = null;
+        this.currentImageIndex = -1;
+        this.images = [];
+        
+        // Zoom & Pan state
+        this.currentZoom = 1.0;
+        this.panX = 0;
+        this.panY = 0;
+        this.minZoom = 0.25;
+        this.maxZoom = 5.0;
+        this.zoomStep = 0.1;
+        
+        // Interaction state
+        this.isDragging = false;
+        this.lastMouseX = 0;
+        this.lastMouseY = 0;
+        this.isVisible = false;
+        
+        // UI elements
+        this.zoomControls = null;
+        this.imageInfo = null;
+        this.navigationControls = null;
+        
+        // Settings - will be dynamically checked from ComfyUI Settings
+        this.enableKeyboardShortcuts = true;
+    }
+    
+    show(imageIndex, images) {
+        this.currentImageIndex = imageIndex;
+        this.images = images;
+        this.isVisible = true;
+        
+        if (!this.overlay) {
+            this.createOverlay();
+        }
+        
+        this.resetZoomAndPan();
+        this.loadImage(imageIndex);
+        this.updateImageInfo();
+        this.overlay.classList.add('visible');
+        
+        // Focus for keyboard events
+        this.overlay.focus();
+    }
+    
+    hide() {
+        if (this.overlay) {
+            this.overlay.classList.remove('visible');
+            setTimeout(() => {
+                if (this.overlay && this.overlay.parentNode) {
+                    this.overlay.parentNode.removeChild(this.overlay);
+                    this.overlay = null;
+                }
+            }, 300); // Wait for fade-out animation
+        }
+        this.isVisible = false;
+    }
+    
+    createOverlay() {
+        this.overlay = document.createElement('div');
+        this.overlay.className = 'nf-expanded-overlay';
+        this.overlay.setAttribute('tabindex', '-1');
+        
+        // Main container
+        this.container = document.createElement('div');
+        this.container.className = 'nf-expanded-container';
+        
+        // Image element
+        this.imageElement = document.createElement('img');
+        this.imageElement.className = 'nf-expanded-image';
+        this.imageElement.draggable = false;
+        
+        // Controls
+        this.createControls();
+        
+        // Assembly
+        this.container.appendChild(this.imageElement);
+        this.overlay.appendChild(this.container);
+        this.overlay.appendChild(this.zoomControls);
+        this.overlay.appendChild(this.imageInfo);
+        this.overlay.appendChild(this.navigationControls);
+        this.overlay.appendChild(this.helpButton);
+        
+        // Event listeners
+        this.attachEventListeners();
+        
+        document.body.appendChild(this.overlay);
+    }
+    
+    createControls() {
+        // Navigation controls (close, prev, next)
+        this.navigationControls = document.createElement('div');
+        this.navigationControls.className = 'nf-expanded-nav';
+        
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'nf-expanded-close';
+        closeBtn.innerHTML = '×';
+        closeBtn.title = 'Close (ESC)';
+        closeBtn.onclick = () => this.hide();
+        
+        const prevBtn = document.createElement('button');
+        prevBtn.className = 'nf-expanded-prev';
+        prevBtn.innerHTML = '◀';
+        prevBtn.title = 'Previous image (Alt + ←)';
+        prevBtn.onclick = () => this.navigateToImage(this.currentImageIndex - 1);
+        
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'nf-expanded-next';
+        nextBtn.innerHTML = '▶';
+        nextBtn.title = 'Next image (Alt + →)';
+        nextBtn.onclick = () => this.navigateToImage(this.currentImageIndex + 1);
+        
+        this.navigationControls.appendChild(closeBtn);
+        this.navigationControls.appendChild(prevBtn);
+        this.navigationControls.appendChild(nextBtn);
+        
+        // Zoom controls
+        this.zoomControls = document.createElement('div');
+        this.zoomControls.className = 'nf-zoom-controls';
+        
+        const zoomOutBtn = document.createElement('button');
+        zoomOutBtn.innerHTML = '−';
+        zoomOutBtn.title = 'Zoom out (Page Down)';
+        zoomOutBtn.onclick = () => this.zoomOut();
+        
+        this.zoomLevel = document.createElement('span');
+        this.zoomLevel.className = 'nf-zoom-level';
+        this.zoomLevel.textContent = '100%';
+        
+        const zoomInBtn = document.createElement('button');
+        zoomInBtn.innerHTML = '+';
+        zoomInBtn.title = 'Zoom in (Page Up)';
+        zoomInBtn.onclick = () => this.zoomIn();
+        
+        const resetBtn = document.createElement('button');
+        resetBtn.innerHTML = '⌂';
+        resetBtn.title = 'Reset zoom (Enter)';
+        resetBtn.onclick = () => this.resetZoom();
+        
+        this.zoomControls.appendChild(zoomOutBtn);
+        this.zoomControls.appendChild(this.zoomLevel);
+        this.zoomControls.appendChild(zoomInBtn);
+        this.zoomControls.appendChild(resetBtn);
+        
+        // Image info
+        this.imageInfo = document.createElement('div');
+        this.imageInfo.className = 'nf-image-info';
+        
+        // Keyboard shortcut help button
+        this.helpButton = document.createElement('button');
+        this.helpButton.className = 'nf-help-button';
+        this.helpButton.innerHTML = '?';
+        this.helpButton.title = 'Show keyboard shortcuts help';
+        this.helpButton.onclick = () => this.toggleHelp();
+    }
+    
+    attachEventListeners() {
+        // Background click to close
+        this.overlay.onclick = (e) => {
+            if (e.target === this.overlay) {
+                this.hide();
+            }
+        };
+        
+        // Double-click on image to close expanded view
+        this.imageElement.ondblclick = (e) => {
+            e.stopPropagation();
+            this.hide();
+        };
+        
+        // Mouse wheel zoom
+        this.container.onwheel = (e) => this.handleWheelZoom(e);
+        
+        // Drag to pan
+        this.container.onmousedown = (e) => this.handleMouseDown(e);
+        this.container.onmousemove = (e) => this.handleMouseMove(e);
+        this.container.onmouseup = () => this.handleMouseUp();
+        this.container.onmouseleave = () => this.handleMouseUp();
+        
+        // Keyboard shortcuts (controlled by ComfyUI Settings)
+        this.overlay.onkeydown = (e) => this.handleKeyboard(e);
+        
+        // Prevent context menu and drag on image
+        this.imageElement.oncontextmenu = (e) => e.preventDefault();
+        this.imageElement.ondragstart = (e) => e.preventDefault();
+    }
+    
+    loadImage(index) {
+        if (index >= 0 && index < this.images.length) {
+            this.currentImageIndex = index;
+            this.imageElement.src = this.dialog.getImageUrl(this.images[index]);
+            this.updateImageInfo();
+            this.updateNavigationButtons();
+        }
+    }
+    
+    updateImageInfo() {
+        if (this.imageInfo && this.images.length > 0) {
+            const current = this.currentImageIndex + 1;
+            const total = this.images.length;
+            const zoomPercent = Math.round(this.currentZoom * 100);
+            
+            this.imageInfo.innerHTML = `
+                <span class="nf-image-counter">${current} / ${total}</span>
+                <span class="nf-image-zoom">${zoomPercent}%</span>
+            `;
+        }
+    }
+    
+    updateNavigationButtons() {
+        const prevBtn = this.navigationControls.querySelector('.nf-expanded-prev');
+        const nextBtn = this.navigationControls.querySelector('.nf-expanded-next');
+        
+        if (prevBtn) prevBtn.disabled = this.currentImageIndex <= 0;
+        if (nextBtn) nextBtn.disabled = this.currentImageIndex >= this.images.length - 1;
+    }
+    
+    navigateToImage(index) {
+        if (index >= 0 && index < this.images.length) {
+            this.loadImage(index);
+        }
+    }
+    
+    // Zoom functionality
+    handleWheelZoom(event) {
+        event.preventDefault();
+        
+        const rect = this.imageElement.getBoundingClientRect();
+        const mouseX = event.clientX - rect.left;
+        const mouseY = event.clientY - rect.top;
+        
+        const delta = event.deltaY > 0 ? (1 / 1.2) : 1.2;
+        const newZoom = this.clampZoom(this.currentZoom * delta);
+        
+        this.zoomAtPoint(newZoom, mouseX, mouseY);
+    }
+    
+    zoomAtPoint(newZoom, pointX, pointY) {
+        const oldZoom = this.currentZoom;
+        const zoomDelta = newZoom / oldZoom;
+        
+        const rect = this.container.getBoundingClientRect();
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        
+        const offsetX = pointX - centerX;
+        const offsetY = pointY - centerY;
+        
+        this.panX = (this.panX - offsetX) * zoomDelta + offsetX;
+        this.panY = (this.panY - offsetY) * zoomDelta + offsetY;
+        this.currentZoom = newZoom;
+        
+        this.updateImageTransform();
+    }
+    
+    // Pan functionality
+    handleMouseDown(event) {
+        if (event.button === 0 && this.currentZoom > 1.0) {
+            event.preventDefault(); // Prevent image file drag
+            this.isDragging = true;
+            this.lastMouseX = event.clientX;
+            this.lastMouseY = event.clientY;
+            this.container.style.cursor = 'grabbing';
+        }
+    }
+    
+    handleMouseMove(event) {
+        if (this.isDragging) {
+            const deltaX = event.clientX - this.lastMouseX;
+            const deltaY = event.clientY - this.lastMouseY;
+            
+            this.panX += deltaX;
+            this.panY += deltaY;
+            
+            this.constrainPan();
+            this.updateImageTransform();
+            
+            this.lastMouseX = event.clientX;
+            this.lastMouseY = event.clientY;
+        }
+    }
+    
+    handleMouseUp() {
+        this.isDragging = false;
+        this.container.style.cursor = this.currentZoom > 1.0 ? 'grab' : 'default';
+    }
+    
+    // Transform management
+    updateImageTransform() {
+        const transform = `translate(${this.panX}px, ${this.panY}px) scale(${this.currentZoom})`;
+        this.imageElement.style.transform = transform;
+        this.updateZoomDisplay();
+    }
+    
+    updateZoomDisplay() {
+        if (this.zoomLevel) {
+            this.zoomLevel.textContent = `${Math.round(this.currentZoom * 100)}%`;
+        }
+        this.updateImageInfo();
+    }
+    
+    constrainPan() {
+        if (this.currentZoom <= 1.0) {
+            this.panX = 0;
+            this.panY = 0;
+            return;
+        }
+        
+        // Keep image within reasonable bounds
+        const maxPan = 200; // px
+        this.panX = Math.max(-maxPan, Math.min(maxPan, this.panX));
+        this.panY = Math.max(-maxPan, Math.min(maxPan, this.panY));
+    }
+    
+    // Utility methods
+    clampZoom(zoom) {
+        return Math.max(this.minZoom, Math.min(this.maxZoom, zoom));
+    }
+    
+    resetZoomAndPan() {
+        this.currentZoom = 1.0;
+        this.panX = 0;
+        this.panY = 0;
+        this.updateImageTransform();
+    }
+    
+    // Zoom operations
+    zoomIn() {
+        const newZoom = this.clampZoom(this.currentZoom * 1.25);
+        this.setZoom(newZoom);
+    }
+    
+    zoomOut() {
+        const newZoom = this.clampZoom(this.currentZoom / 1.25);
+        this.setZoom(newZoom);
+    }
+    
+    resetZoom() {
+        this.currentZoom = 1.0;
+        this.panX = 0;
+        this.panY = 0;
+        this.updateImageTransform();
+    }
+    
+    setZoom(newZoom) {
+        this.currentZoom = this.clampZoom(newZoom);
+        this.updateImageTransform();
+    }
+    
+    
+    // Keyboard shortcuts (controlled by ComfyUI Settings)
+    handleKeyboard(event) {
+        if (!this.isVisible) return;
+        
+        // Check if keyboard shortcuts are enabled in ComfyUI Settings
+        const shortcutsEnabled = app.ui.settings.getSettingValue("NFPreviewSelector.Keybinding.EnableShortcuts", true);
+        if (!shortcutsEnabled) return;
+        
+        // Stop propagation to avoid ComfyUI conflicts
+        event.stopPropagation();
+        
+        const key = event.code;
+        const hasAlt = event.altKey;
+        
+        // Safe shortcuts only
+        switch (key) {
+            case 'Escape':
+                event.preventDefault();
+                this.hide();
+                break;
+            case 'Enter':
+                if (!hasAlt) {
+                    event.preventDefault();
+                    this.resetZoom();
+                }
+                break;
+            case 'PageUp':
+                event.preventDefault();
+                this.zoomIn();
+                break;
+            case 'PageDown':
+                event.preventDefault();
+                this.zoomOut();
+                break;
+            case 'Home':
+            case 'End':
+                if (!hasAlt) {
+                    event.preventDefault();
+                    this.resetZoom();
+                }
+                break;
+            case 'ArrowLeft':
+                if (hasAlt) {
+                    event.preventDefault();
+                    this.navigateToImage(this.currentImageIndex - 1);
+                }
+                break;
+            case 'ArrowRight':
+                if (hasAlt) {
+                    event.preventDefault();
+                    this.navigateToImage(this.currentImageIndex + 1);
+                }
+                break;
+        }
+    }
+    
+    // Help functionality
+    toggleHelp() {
+        const shortcutsEnabled = app.ui.settings.getSettingValue("NFPreviewSelector.Keybinding.EnableShortcuts", true);
+        
+        if (!shortcutsEnabled) {
+            alert("Keyboard shortcuts are currently disabled in Settings.\n\nTo enable: Settings > NFPreviewSelector > Enable keyboard shortcuts in expanded view");
+            return;
+        }
+        
+        const helpText = `Keyboard Shortcuts in Expanded Image View:
+
+Navigation:
+• ESC - Close expanded view
+• Alt + ← / → - Previous/Next image
+
+Zoom Controls:  
+• Page Up - Zoom in
+• Page Down - Zoom out
+• Enter - Reset zoom to 100%
+• Home / End - Reset zoom to 100%
+
+Mouse Controls:
+• Mouse wheel - Zoom in/out at cursor position
+• Click & drag - Pan when zoomed in
+• Double-click on image - Close expanded view
+
+To disable these shortcuts:
+Settings > NFPreviewSelector > Enable keyboard shortcuts in expanded view`;
+        
+        alert(helpText);
     }
 }
 

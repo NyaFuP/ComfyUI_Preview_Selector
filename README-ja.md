@@ -12,6 +12,9 @@ ComfyUI用のフローティングダイアログベースの画像プレビュ�
 - **Latent画像対応**: Latent画像の入出力に対応
 - **メモリー機能**: ダイアログの表示位置/サイズを記憶
 
+## 新機能(v1.2.5)
+- **プレビューのズーム表示**: プレビュー画像をダブルクリックすることで拡大表示モードのON/OFF切り替え
+
 ## 使い方
 
 1. 「NF Preview Selector」ノードをワークフローに追加
@@ -33,6 +36,7 @@ review_and_selectモードを選んだ場合、フローティングダイアロ
 - 選択枚数
 - タイムアウトまでのカウントダウン
 - 確定(Confirm)/キャンセル(Cancel)ボタン
+- フローティングダイアログを開いたままにするピン止めボタン
 
   <img width="316" height="528" alt="Dialog Interface" src="https://github.com/user-attachments/assets/e2bc576e-5e66-4735-beb0-2742a8a0d419" />
 
@@ -41,6 +45,7 @@ review_and_selectモードを選んだ場合、フローティングダイアロ
 ComfyUIの設定メニューからアクセス：
 - **Dialog maximum width**: ダイアログの最大幅をピクセル単位で指定します。（最大 1800px）
 - **Remember window position**: ONで最後のダイアログ位置とサイズを記憶します。
+- **Enable keyboard shortcuts in expanded view**: ONで拡大モードの時にキーボードショートカットで一部の操作が可能 *(New in v1.2.5)*
 
 <img width="544" height="121" alt="Settings" src="https://github.com/user-attachments/assets/105277be-b16d-4d66-b683-9617f097a201" />
 
@@ -56,14 +61,6 @@ ComfyUIの設定メニューからアクセス：
    もしくは“ComfyUI/custom_nodes/”ディレクトリ内で```git clone https://github.com/NyaFuP/ComfyUI_Preview_Selector.git```を実行してください。
 2. ComfyUIを再起動してください
 3. "image/review" カテゴリーの中に"NF Preview Selector"が表示されます。
-- ~~Installation from ComfyUI Manager is not yet available~~
-
-## Technical Details
-
-- JavaScript ES6モジュールを使用して構築
-- CSS スタイルのフローティングウィンドウシステム
-- ComfyUI バックエンドとのWebSocket通信
-- 依存関係は最小限（ComfyUIの組み込みAPIを使用）
 
 ## Known Issues
 

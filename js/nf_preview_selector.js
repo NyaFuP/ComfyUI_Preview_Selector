@@ -38,6 +38,14 @@ app.registerExtension({
             tooltip: "Maximum width of the preview dialog in pixels (400-1800)"
         });
         
+        app.ui.settings.addSetting({
+            id: "NFPreviewSelector.Keybinding.EnableShortcuts",
+            name: "Enable keyboard shortcuts in expanded view",
+            type: "boolean",
+            defaultValue: true,
+            tooltip: "Enable keyboard shortcuts for zoom and navigation in the expanded image view (ESC: close, Page Up/Down: zoom, Alt+Arrow: navigate)"
+        });
+        
         
     },
     

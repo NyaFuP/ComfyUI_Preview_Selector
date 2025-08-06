@@ -1,7 +1,7 @@
 [project]
 name = "Preview_Selector"
 description = "A floating dialog-based image preview and selection system for ComfyUI."
-version = "1.2.0"
+version = "1.2.5"
 license = {file = "LICENSE"}
 
 

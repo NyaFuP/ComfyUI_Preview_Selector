@@ -19,6 +19,10 @@ A floating dialog-based image preview and selection system for ComfyUI.
 - **Latent Support**: Optional latent passthrough for efficiency
 - **Memory**: Window position and settings are remembered
 
+## New Features in v1.2.5
+- **Double-Click Image Expansion**: Full-screen image viewing with advanced zoom and pan capabilities
+---
+
 ## Usage
 
 1. Add the "NF Preview Selector" node to your workflow
@@ -40,6 +44,7 @@ When in review mode, a floating dialog will appear showing:
 - Selection counter
 - Countdown timer
 - Confirm/Cancel buttons
+- Pin button to keep the floating dialog open(v1.2.0)
 
   <img width="316" height="528" alt="Dialog Interface" src="https://github.com/user-attachments/assets/e2bc576e-5e66-4735-beb0-2742a8a0d419" />
 
@@ -62,7 +67,6 @@ Access via ComfyUI Settings menu:
 1. It can be installed from ComfyUI Manager. Or git clone this repo.
 2. Restart ComfyUI
 3. The "NF Preview Selector" node will appear in the "image/review" category
-- ~~Installation from ComfyUI Manager is not yet available~~
 
 ## Known Issues
 - When this custom node is waiting for user input, the previewed image will not be saved if you select "Cancel" or if it times out. Currently, implementing a fix for this is beyond my abilities, so it will remain as is until I can get some hints on how to improve it.

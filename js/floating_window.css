@@ -242,3 +242,307 @@
 }
 
 /* Max width is now configurable via settings */
+
+/* v1.2.5: Expanded Image View System */
+
+/* Full-screen overlay for expanded image view */
+.nf-expanded-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.95);
+    z-index: 1000000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    cursor: default;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.nf-expanded-overlay.visible {
+    display: flex;
+    opacity: 1;
+}
+
+/* Main container for zoom and pan */
+.nf-expanded-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    cursor: grab;
+}
+
+.nf-expanded-container.dragging {
+    cursor: grabbing;
+}
+
+/* The actual expanded image */
+.nf-expanded-image {
+    max-width: 90vw;
+    max-height: 90vh;
+    object-fit: contain;
+    user-select: none;
+    pointer-events: auto;
+    transform-origin: center;
+    transition: transform 0.1s ease-out;
+}
+
+/* Navigation controls (close, prev, next) */
+.nf-expanded-nav {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 1000001;
+}
+
+.nf-expanded-nav button {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.nf-expanded-nav button:hover {
+    background-color: rgba(0, 0, 0, 0.9);
+    transform: scale(1.1);
+}
+
+.nf-expanded-nav button:active {
+    transform: scale(0.95);
+}
+
+.nf-expanded-nav button:disabled {
+    background-color: rgba(0, 0, 0, 0.3);
+    color: rgba(255, 255, 255, 0.3);
+    cursor: not-allowed;
+    transform: none;
+}
+
+.nf-expanded-close {
+    font-size: 24px !important;
+}
+
+/* Zoom controls */
+.nf-zoom-controls {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 10px 15px;
+    border-radius: 25px;
+    z-index: 1000001;
+}
+
+.nf-zoom-controls button {
+    width: 35px;
+    height: 35px;
+    border: none;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.nf-zoom-controls button:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.nf-zoom-controls button:active {
+    transform: scale(0.95);
+}
+
+/* Zoom level indicator */
+.nf-zoom-level {
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    min-width: 50px;
+    text-align: center;
+    user-select: none;
+}
+
+/* Image info display */
+.nf-image-info {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 14px;
+    display: flex;
+    gap: 15px;
+    z-index: 1000001;
+}
+
+/* Help button */
+.nf-help-button {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 35px;
+    height: 35px;
+    border: none;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 1000001;
+    user-select: none;
+}
+
+.nf-help-button:hover {
+    background-color: rgba(0, 0, 0, 0.9);
+    transform: scale(1.05);
+}
+
+.nf-image-counter {
+    font-weight: bold;
+}
+
+.nf-image-zoom {
+    color: #4CAF50;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .nf-expanded-nav {
+        top: 10px;
+        right: 10px;
+        gap: 8px;
+    }
+    
+    .nf-expanded-nav button {
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
+    }
+    
+    .nf-zoom-controls {
+        bottom: 10px;
+        padding: 8px 12px;
+        gap: 8px;
+    }
+    
+    .nf-zoom-controls button {
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+    }
+    
+    .nf-zoom-level {
+        font-size: 12px;
+        min-width: 45px;
+    }
+    
+    .nf-image-info {
+        top: 10px;
+        left: 10px;
+        padding: 8px 12px;
+        font-size: 12px;
+        gap: 10px;
+    }
+    
+    .nf-expanded-image {
+        max-width: 95vw;
+        max-height: 95vh;
+    }
+    
+    .nf-help-button {
+        bottom: 60px;
+        right: 10px;
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+}
+
+/* Touch device adjustments */
+@media (hover: none) {
+    .nf-expanded-container {
+        cursor: default;
+    }
+    
+    .nf-expanded-nav button:hover {
+        transform: none;
+        background-color: rgba(0, 0, 0, 0.7);
+    }
+    
+    .nf-zoom-controls button:hover {
+        transform: none;
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    .nf-help-button:hover {
+        transform: none;
+        background-color: rgba(0, 0, 0, 0.8);
+    }
+}
+
+/* High DPI display optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .nf-expanded-image {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* Focus styles for accessibility */
+.nf-expanded-overlay:focus {
+    outline: none;
+}
+
+.nf-expanded-nav button:focus,
+.nf-zoom-controls button:focus,
+.nf-help-button:focus {
+    outline: 2px solid #4CAF50;
+    outline-offset: 2px;
+}
+
+/* Animation for smooth transitions */
+.nf-expanded-overlay {
+    backdrop-filter: blur(2px);
+}
+
+/* Ensure proper layering */
+.nf-expanded-overlay * {
+    box-sizing: border-box;
+}
