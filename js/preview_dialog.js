@@ -884,7 +884,8 @@ class ExpandedImageView {
     handleWheelZoom(event) {
         event.preventDefault();
         
-        const rect = this.imageElement.getBoundingClientRect();
+        // Use container coordinates for consistency with zoomAtPoint
+        const rect = this.container.getBoundingClientRect();
         const mouseX = event.clientX - rect.left;
         const mouseY = event.clientY - rect.top;
         
