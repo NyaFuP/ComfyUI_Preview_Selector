@@ -1,6 +1,15 @@
 # NF Preview Selector
 
-A floating dialog-based image preview and selection system for ComfyUI.
+> [!IMPORTANT]
+> **This node has moved to [NF Suite](https://github.com/NyaFuP/ComfyUI-NF_Suite).**
+> NF Preview Selector is now part of NF Suite, together with other nodes. This repository is no longer updated.
+>
+> What changed in NF Suite:
+> - No floating dialog and no timeout. The images are shown on the node itself; pick them and press **Continue** to run only the downstream part. The queue is not blocked while you choose.
+> - New **Generate** button to run only the upstream part again.
+> - Right-click an image for Copy / Open / Save Image.
+>
+> NF Suite uses a different node (`NF Preview Selector` in the `NF Suite/image` category). Workflows that use this node keep working as long as this repository is installed; to switch, replace the node by hand. Both can be installed at the same time.
 
 日本語版READMEは[こちら](README-ja.md)です。
 
