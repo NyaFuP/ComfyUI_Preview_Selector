@@ -1,6 +1,15 @@
 # NF Preview Selector
 
-ComfyUI用のフローティングダイアログベースの画像プレビューおよび選択システムです。
+> [!IMPORTANT]
+> **このノードは [NF Suite](https://github.com/NyaFuP/ComfyUI-NF_Suite) に移行しました。**
+> NF Preview Selector は、他のノードとともに NF Suite に含まれるようになりました。このリポジトリは今後更新しません。
+>
+> NF Suite での主な変更点：
+> - フローティングダイアログとタイムアウトはなくなりました。画像はノード上に表示され、選んで **Continue** を押すと下流だけが実行されます。選んでいる間もキューは止まりません。
+> - **Generate** ボタンで、上流だけを実行し直せます。
+> - 画像を右クリックすると、Copy / Open / Save Image が使えます。
+>
+> NF Suite のノードは別のノードです（カテゴリー `NF Suite/image` の `NF Preview Selector`）。このリポジトリをインストールしている間は、既存のワークフローもそのまま動きます。切り替える場合は、手作業でノードを置き換えてください。両方を同時にインストールしても問題ありません。
 
 ## 機能
 
